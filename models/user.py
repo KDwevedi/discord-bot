@@ -1,8 +1,9 @@
 class User:
     def __init__(self,userData):
         #self.name = userData["name"]
-        self.discordID = userData["discordID"]
-        self.githubID = userData["githubID"]
+        self.discordId = userData["discordId"]
+        self.discordUserName = userData("discordUserName")
+        self.githubId = userData["githubId"]
 
 
 class Contributor(User):

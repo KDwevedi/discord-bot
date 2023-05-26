@@ -12,11 +12,11 @@ class GithubAPI:
             'Authorization': os.getenv("GithubPAT")
         }
     
-    def get_commits(self):
+    def get_repo_commits(self):
         url =  f'https://api.github.com/repos/{self.owner}/{self.repo}/commits'
         return requests.get(url, headers=self.headers).json()
     
-    def get_latest_commit(self):
+    def get_latest_repo_commit(self):
         return self.get_commits()[0]
     
     def get_json(self, dict):
