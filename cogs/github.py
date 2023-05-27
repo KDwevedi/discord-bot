@@ -10,10 +10,10 @@ class GithubTracking(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('ready')
+        # print('ready')
         self.guild = await self.bot.fetch_guild(os.getenv("SERVER_ID"))
         webhooks = await self.guild.webhooks()
-        print(webhooks[0].url)
+        # print(webhooks[0].url)
     
     # async def get_updates(self, project):
     #     #Gets updates regarding a project
