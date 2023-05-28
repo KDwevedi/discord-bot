@@ -1,6 +1,5 @@
 import sys, os
-sys.path.append('/home/kanavdwevedi/Desktop/discord-bot-for-c4gt/')
-print(sys.path)
+
 from utils.db import SupabaseInterface
 
 class Project:
@@ -24,6 +23,12 @@ class Project:
         if len(data)>1:
             raise Exception("Project name should be unique but recieved multiple items for this name.")
         return False
+    
+    @classmethod
+    def get_all_projects(cls):
+        db_client = SupabaseInterface(table="projects")
+        data = db_client.read_all()
+        return data
     
 
         

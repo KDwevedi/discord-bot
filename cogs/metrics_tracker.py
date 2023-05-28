@@ -3,6 +3,8 @@
 from discord.ext import commands, tasks
 from datetime import time, datetime
 from models.product import Product
+from models.project import Project
+from utils.api import GithubAPI
 import os
 
 class MetricsTracker(commands.Cog):
@@ -11,6 +13,7 @@ class MetricsTracker(commands.Cog):
         self.measure_times = [
             time(hour = 12, )
         ]
+        self.test_task.start()
     
     
     #Command to assign a channel to a product
@@ -76,51 +79,47 @@ class MetricsTracker(commands.Cog):
         # send this to the server instead
         await ctx.channel.send(discord_metrics)
         return
+    
+    async def get_github_metrics(self, ctx):
+
+        #Get all projects in the db
+        projects = Project.get_all_projects()
+
+        github_metrics = {
+            "updated_at": datetime.now(),
+            "metrics": dict()
+        }
+
+        for project in projects:
+            url_components = str(project['repository']).split('/')
+            url_components = [component for component in url_components if component != '']
+            print(url_components)
+            [protocol, host, repo_owner, repo_name] = url_components
+            api = GithubAPI(owner=repo_owner, repo=repo_name)
+
+
+            github_metrics["metrics"][project["product"]] = {
+                "project": project["name"],
+                "repository": project["repository"],
+                "total_commits":  api.get_commit_count()
+            }
+        
+        await ctx.channel.send(github_metrics)
+
+        return
+    
+    @tasks.loop(seconds=5.0)
+    async def test_task(self):
+        print("Periodic task is running")
 
     @commands.command(aliases=['metrics'])
+    # @tasks.loop(seconds=10.0)
     async def update_metrics_periodically(self, ctx):
         # Discord Metrics
-        #   Go through all channels in the guild
-        #   Select the ones that are engagement channels (let a list from supabase or create channel category)
-        #   For every valid engagement channel, count messages from mentors and from contributors (pls do this through roles, let's not ping db for mentor/contributor lists)
-        #   Return Data
-
         await self.get_discord_metrics(ctx)
+        await self.get_github_metrics(ctx)
 
-        # products = Product.get_all_products()
-
-        # print(products)
-
-        # discord_metrics = {
-        #     "measured_at": datetime.now(),
-        #     "metrics": dict()
-        # }
-
-        # for product in products:
-        #     discord_metrics["metrics"][product['name']] = {
-        #         "mentor_messages": 0,
-        #         "contributor_messages": 0
-        #     }
-        #     channel_id = product["channel"]
-        #     channel = await self.bot.fetch_channel(channel_id)
-
-        #     await ctx.channel.send(channel)
-            
-        #     async for message in channel.history(limit=None):
-        #         if any(role.name.lower() == 'mentor' for role in message.author.roles):
-        #             discord_metrics["metrics"][product['name']]['mentor_messages'] +=1
-                
-        #         if any(role.name.lower() == 'contributor' for role in message.author.roles):
-        #             discord_metrics["metrics"][product['name']]['contributor_messages'] +=1
-
-        # # send this to the server instead
-        # await ctx.channel.send(discord_metrics)
-
-            
-
-    
-
-
+        
 
         # Github Metrics
         #   Get repo url

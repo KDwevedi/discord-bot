@@ -1,6 +1,5 @@
 import sys, os
-sys.path.append('/home/kanavdwevedi/Desktop/discord-bot-for-c4gt/')
-# print(sys.path)
+
 from utils.db import SupabaseInterface
 
 class Product:

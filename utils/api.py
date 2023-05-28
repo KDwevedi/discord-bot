@@ -16,6 +16,13 @@ class GithubAPI:
         url =  f'https://api.github.com/repos/{self.owner}/{self.repo}/commits'
         return requests.get(url, headers=self.headers).json()
     
+    def get_commit_count(self):
+        contributors = self.get_contributors()
+        commit_count = 0
+        for contributor in contributors:
+            commit_count+=contributor['contributions']
+        return commit_count
+    
     def get_latest_repo_commit(self):
         return self.get_commits()[0]
     
@@ -39,5 +46,5 @@ url =  f'https://api.github.com/repos/{owner}/{repo}/commits'
 # r = requests.get(url, headers=headers)
 # # sys.stdout.write(r.text)
 # print(r.json()[0]["commit"]["author"]["date"], r.json()[-1]["commit"]["author"]["date"])
-tester = GithubAPI(owner=owner,repo=repo)
-print(tester.get_json(tester.get_contributors()))
+# tester = GithubAPI(owner=owner,repo=repo)
+# print(tester.get_json(tester.get_contributors()))
