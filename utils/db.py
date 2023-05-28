@@ -17,6 +17,10 @@ class SupabaseInterface:
         data = self.client.table(self.table).select(columns).eq(query_key, query_value).execute()
         #data.data returns a list of dictionaries with keys being column names and values being row values
         return data.data
+    
+    def read_all(self):
+        data = self.client.table(self.table).select("*").execute()
+        return data.data
         
     def update(self, update, query_key, query_value):
         data = self.client.table(self.table).update(update).eq(query_key, query_value).execute()
@@ -41,7 +45,7 @@ class SupabaseInterface:
         else:
             return False
 
-tester = SupabaseInterface('users').user_exists(476285280811483140)
+tester = SupabaseInterface('users').read_all()
 print(tester)
 # tester.add_user({
 #     "discord_id": 476285280811483140,

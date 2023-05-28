@@ -27,7 +27,6 @@ class Product:
 
     @classmethod
     def is_product(cls, product_name):
-        print('here')
         db_client = SupabaseInterface(table="products")
         data = db_client.read(query_key="name", query_value=product_name)
         if len(data)==1:
@@ -35,6 +34,12 @@ class Product:
         if len(data)>1:
             raise Exception("Product name should be unique but recieved multiple items for this name.")
         return False
+    
+    @classmethod
+    def get_all_products(cls):
+        db_client = SupabaseInterface(table="products")
+        data = db_client.read_all()
+        return data
     
     def assign_channel(self, discord_id):
         SupabaseInterface(table='products').update(update={
