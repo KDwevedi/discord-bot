@@ -1,3 +1,5 @@
+#This data model is not being used right now
+
 class Commit:
     def __init__(self) -> None:
         pass

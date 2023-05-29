@@ -1,12 +1,14 @@
-import sys, os
-
 from utils.db import SupabaseInterface
 
 class Product:
     def __init__(self, data=None, name=None):
         if name is not None:
-            data = SupabaseInterface(table="products").read(query_key="name",query_value=name)[0]
-            print(data)
+            data = SupabaseInterface(table="products").read(query_key="name",query_value=name)
+            if not data:
+                raise Exception("There is no product with name = ", name)
+            else:
+                #Assuming is_unique constraint on name in Products table
+                data=data[0]
         #Name of the product
         self.name = data["name"]
         #Description of the product
@@ -45,9 +47,4 @@ class Product:
             "channel": discord_id
         }, query_key='name', query_value=self.name)
         return 
-
-
-
-# test = Product(name='test')
-# test.assign_channel(1)
-# print(Product.is_product('abc'))
+    

@@ -1,11 +1,14 @@
 import discord
 from discord.ext import commands
-import os
+import os, sys
 import asyncio
 import dotenv
 
+#Since there are user defined packages, adding current directory to python path
+current_directory = os.getcwd()
+sys.path.append(current_directory)
+
 dotenv.load_dotenv(".env")
-#What are intents?
 intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix='!', intents=intents)

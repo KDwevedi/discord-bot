@@ -5,6 +5,7 @@ from datetime import time, datetime
 from models.product import Product
 from models.project import Project
 from utils.api import GithubAPI
+import requests, json
 import os
 
 class MetricsTracker(commands.Cog):
@@ -52,7 +53,7 @@ class MetricsTracker(commands.Cog):
     async def get_discord_metrics(self, ctx):
         products = Product.get_all_products()
 
-        print(products)
+        # print(products)
 
         discord_metrics = {
             "measured_at": datetime.now(),
@@ -66,19 +67,20 @@ class MetricsTracker(commands.Cog):
             }
             channel_id = product["channel"]
             channel = await self.bot.fetch_channel(channel_id)
-
-            await ctx.channel.send(channel)
             
             async for message in channel.history(limit=None):
                 if any(role.name.lower() == 'mentor' for role in message.author.roles):
-                    discord_metrics["metrics"][product['name']]['mentor_messages'] +=1
+                    discord_metrics["metrics"][product["name"]]['mentor_messages'] +=1
                 
                 if any(role.name.lower() == 'contributor' for role in message.author.roles):
                     discord_metrics["metrics"][product['name']]['contributor_messages'] +=1
+                
+        r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/discord""", json=json.dumps(discord_metrics, indent=4, default=str))
+        print(r.json())
 
-        # send this to the server instead
-        await ctx.channel.send(discord_metrics)
-        return
+        #Store metrics
+
+        
     
     async def get_github_metrics(self, ctx):
 
@@ -97,14 +99,22 @@ class MetricsTracker(commands.Cog):
             [protocol, host, repo_owner, repo_name] = url_components
             api = GithubAPI(owner=repo_owner, repo=repo_name)
 
+            (open_prs, closed_prs) = api.get_pull_request_count()
+
 
             github_metrics["metrics"][project["product"]] = {
                 "project": project["name"],
                 "repository": project["repository"],
-                "total_commits":  api.get_commit_count()
+                "number_of_commits":  api.get_commit_count(),
+                "open_prs": open_prs,
+                "closed_prs": closed_prs,
+                "open_issues": 0,
+                "closed_issues": 0
             }
+        r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/github""", json=json.dumps(github_metrics, indent=4, default=str))
+        print(r.json())
         
-        await ctx.channel.send(github_metrics)
+        # await ctx.channel.send(github_metrics)
 
         return
     
