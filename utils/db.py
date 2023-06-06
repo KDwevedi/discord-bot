@@ -1,15 +1,13 @@
 import os
-from typing import Any
 from supabase import create_client, Client
-import dotenv
-
-dotenv.load_dotenv("../.env")
 
 
 class SupabaseInterface:
-    def __init__(self, table=None) -> None:
-        self.supabase_url = os.getenv("SUPABASE_URL")
-        self.supabase_key = os.getenv("SUPABASE_KEY")
+    def __init__(self, table, url=None, key=None) -> None:
+        print(url, key)
+
+        self.supabase_url = url if url else os.getenv("SUPABASE_URL")
+        self.supabase_key = key if key else os.getenv("SUPABASE_KEY")
         self.table = table
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
     
@@ -26,8 +24,9 @@ class SupabaseInterface:
         data = self.client.table(self.table).update(update).eq(query_key, query_value).execute()
         return data.data
 
-    def insert(self):
-        pass
+    def insert(self, data):
+        data = self.client.table(self.table).insert(data).execute()
+        return data.data
     def delete(self):
         pass
     
