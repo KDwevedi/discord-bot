@@ -4,19 +4,14 @@ import dotenv
 from discord.ext import commands, tasks
 from utils.db import SupabaseInterface
 
+#This is a Discord View that is a set of UI elements that can be sent together in a message in discord.
+#This view send a link to Github Auth through flask app in the form of a button.
 class AuthenticationView(discord.ui.View):
     def __init__(self, discord_userdata):
-        super().__init__()  # times out after 120 seconds
+        super().__init__()
         button = discord.ui.Button(label='Authenticate Github', style=discord.ButtonStyle.url, url=f'{os.getenv("FLASK_HOST")}/authenticate/{discord_userdata}')
         self.add_item(button)
         self.message = None
-
-
-
-    
-
-
-
 
 class UserHandler(commands.Cog):
     def __init__(self, bot) -> None:
@@ -26,13 +21,17 @@ class UserHandler(commands.Cog):
 
     @commands.command(aliases=['join'])
     async def add_user(self, ctx, arg):
-        # print(arg)
         dmchannel = ctx.author.dm_channel if ctx.author.dm_channel else await ctx.author.create_dm()
         Roles = ['contributor', 'mentor', 'org']
         if arg.lower() not in Roles:
             await ctx.channel.send("Invalid Role")
             return 
-        
+        if arg.lower() =='org':
+            await ctx.channel.send('''Adding org roles isn't figured out yet''')
+        if arg.lower() =='mentor':
+            await ctx.channel.send('''Joining as mentor needs to be defined''')
+            #Verify mentor
+            return
 
         userdata = str(ctx.author.id)+'$'+ctx.author.name+'$'+arg.lower()
         view = AuthenticationView(userdata)

@@ -3,3 +3,4 @@
 #environment variables and cache
 *.env
 */__pycache__/*
+*.csv
