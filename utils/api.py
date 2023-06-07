@@ -6,9 +6,10 @@ dotenv.load_dotenv()
 
 
 class GithubAPI:
-    def __init__(self, owner, repo):
-        self.owner = owner
-        self.repo = repo
+    def __init__(self, repo):
+        url_components = repo.split('/')
+        self.owner = url_components[3]
+        self.repo = url_components[4]
         self.headers = {
             'Accept': 'application/vnd.github+json',
             'Authorization': f'Bearer {os.getenv("GithubPAT")}'
@@ -33,9 +34,24 @@ class GithubAPI:
     def get_json(self, dict):
         return json.dumps(dict)
     
-    def get_issues(self, status):
+    def get_issues(self, status, page):
+        params={
+            "state":status,
+            "since":"2023-05-01T00:00:00Z",
+            "per_page":100,
+            "page":page
+            }
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/issues'
-        return requests.get(url, headers=self.headers, params={"state":status}).json()
+        return requests.get(url, headers=self.headers, params=params).json()
+    
+    def get_issue_comments(self, issue_number):
+        params={
+            "since":"2023-05-01T00:00:00Z", #cutoff date for metrics
+            }
+
+        url=f"https://api.github.com/repos/{self.owner}/{self.repo}/issues/{issue_number}/comments"
+        
+        return requests.get(url, headers=self.headers, params=params).json()
 
     
     def get_pull_requests(self, status):
@@ -68,7 +84,7 @@ url =  f'https://api.github.com/repos/{owner}/{repo}/commits'
 # # r = requests.get(url, headers=headers)
 # # # sys.stdout.write(r.text)
 # # print(r.json()[0]["commit"]["author"]["date"], r.json()[-1]["commit"]["author"]["date"])
-tester = GithubAPI(owner=owner,repo=repo)
-print(tester.get_commit_count())
-print(tester.get_pull_requests('open'))
-print(tester.get_json(tester.get_contributors()))
+# tester = GithubAPI('https://github.com/ChakshuGautam/cQube-ingestion')
+# print(tester.get_commit_count())
+# print(tester.get_pull_requests('open'))
+# print(tester.get_json(tester.get_contributors()))

@@ -2,10 +2,14 @@ import discord
 import os
 import dotenv
 from discord.ext import commands, tasks
+import time, csv
 from utils.db import SupabaseInterface
+from utils.api import GithubAPI
 
 #This is a Discord View that is a set of UI elements that can be sent together in a message in discord.
 #This view send a link to Github Auth through flask app in the form of a button.
+
+
 class AuthenticationView(discord.ui.View):
     def __init__(self, discord_userdata):
         super().__init__()
@@ -16,8 +20,18 @@ class AuthenticationView(discord.ui.View):
 class UserHandler(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.supabase = SupabaseInterface()
 
+    @commands.command()
+    async def test(self,ctx):
+        # print(os.getenv("SERVER_ID"))
+        guild = await self.bot.fetch_guild(os.getenv("SERVER_ID"))
+        channel = await guild.fetch_channel(973851473131761677)
+        async for message in channel.history(limit=20):
+            print(message.content, type(message.content))
+            if message.content == '':
+                print(True)
+
+    
 
     @commands.command(aliases=['join'])
     async def add_user(self, ctx, arg):

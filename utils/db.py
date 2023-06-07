@@ -44,8 +44,8 @@ class SupabaseInterface:
         else:
             return False
 
-tester = SupabaseInterface('users').read_all()
-print(tester)
+# tester = SupabaseInterface('users').read_all()
+# print(tester)
 # tester.add_user({
 #     "discord_id": 476285280811483140,
 #     "github_id": 74085496

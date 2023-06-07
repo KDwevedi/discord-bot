@@ -6,8 +6,16 @@ from datetime import time, datetime
 from models.product import Product
 from models.project import Project
 from utils.api import GithubAPI
+from utils.db import SupabaseInterface
 import requests, json
 import os
+
+
+def addMentorData(data):
+    client = SupabaseInterface("unstructured discord data")
+    client.insert(data)
+    time.sleep(1)
+    return
 
 class MetricsTracker(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -16,6 +24,35 @@ class MetricsTracker(commands.Cog):
             time(hour = 12, )
         ]
         # self.test_task.start()
+
+
+    @commands.command()
+    async def add_messages(self,ctx):
+        print(1)
+        guild = await self.bot.fetch_guild(os.getenv("SERVER_ID"))
+        print(2, guild)
+        channels = await guild.fetch_channels()
+        print(channels)
+        for channel in channels:
+            if isinstance(channel, discord.channel.TextChannel):
+                data = []
+                # if channel.name not in data:
+                #     data.append(channel.name)
+                # print(data)
+                async for message in channel.history(limit=100):
+                    if message.content=='':
+                        continue
+                    msg = {
+                        "channel": channel.id,
+                        "channel_name": channel.name,
+                        "text": message.content,
+                        "author": message.author.id,
+                        "author_name": message.author.name,
+                        "author_roles": message.author.roles if isinstance(message.author, discord.Member) else [],
+                        "sent_at":str(message.created_at)
+                    }
+                    data.append(msg)
+                addMentorData(data)
     
     
     #Command to assign a channel to a product
