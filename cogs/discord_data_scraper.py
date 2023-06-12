@@ -1,4 +1,5 @@
 from discord.ext import commands, tasks
+import os
 
 from utils.db import SupabaseInterface
 from utils.api import GithubAPI
@@ -12,7 +13,7 @@ class DiscordDataScaper(commands.Cog):
     @commands.command()
     async def introductions(self, ctx):
         guild = ctx.guild if ctx.guild else await self.bot.fetch_guild(os.getenv("SERVER_ID"))
-        intro_channel = await guild.fetch_channel(1107343423167541328)
+        intro_channel = await guild.fetch_channel(os.getenv("INTRODUCTIONS_CHANNEL"))
         with open('introduced.csv', 'w') as file:
             writer = csv.writer(file)
             data = []
@@ -26,7 +27,7 @@ class DiscordDataScaper(commands.Cog):
     @commands.command()
     async def not_contributors(self, ctx):
         guild = ctx.guild if ctx.guild else await self.bot.fetch_guild(os.getenv("SERVER_ID"))
-        orgAndMentors = [973852439054782464, 973852321870118914,976345770477387788]
+        orgAndMentors = [role for role in os.getenv("NON_CONTRIBUTOR_ROLES").split(',')]
         with open("not_contributors.csv", "w") as file:
             writer = csv.writer(file)
             data = []
