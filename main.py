@@ -13,26 +13,12 @@ intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix='!', intents=intents)
 
+#alert message on commandline that bot has successfully logged in
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-# @client.command()
-# async def check(ctx,*, channel):
-#     await ctx.send("test:"+ channel)
-#     if channel == '':
-#         await ctx.send('Hello')
-#     else:
-#         channel = await client.fetch_channel(1110103698761334846)
-#         async for message in channel.history(limit=50):
-#             await ctx.send(message.author)
-
-        
-
-# @client.command()
-# async def ping(ctx):
-#     await ctx.send("Pong")
-
+#load cogs
 async def load():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
@@ -45,22 +31,6 @@ async def main():
 
 
 asyncio.run(main())
-
-# @client.event
-# async def on_message(message):
-#     if message.author == client.user:
-#         return
-
-#     if message.content.startswith('$hello'):
-#         await message.channel.send('Hello!')
-    
-#     if message.content.startswith('$test'):
-#         channel = await client.fetch_channel(1110103698761334846)
-#         await channel.send("Hello")
-#         # for channel in client.get_all_channels():
-
-#         #     if isinstance(channel, discord.channel.TextChannel):
-#         #         await message.channel.send(await channel.webhooks())
 
 
         

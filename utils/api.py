@@ -37,7 +37,7 @@ class GithubAPI:
     def get_issues(self, status, page):
         params={
             "state":status,
-            "since":"2023-05-01T00:00:00Z",
+            "since":"2023-06-08T00:00:00Z",
             "per_page":100,
             "page":page
             }
@@ -54,7 +54,12 @@ class GithubAPI:
         return requests.get(url, headers=self.headers, params=params).json()
 
     
-    def get_pull_requests(self, status):
+    def get_pull_requests(self, status, page):
+        params = {
+            "state":status,
+            "per_page":100,
+            "page":page
+        }
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
         return requests.get(url, headers=self.headers, params={"state":status}).json()
     

@@ -2,20 +2,17 @@
 #Implement using: https://discordpy.readthedocs.io/en/stable/ext/tasks/index.html?highlight=tasks#
 from discord.ext import commands, tasks
 from discord import Member
+from discord.channel import TextChannel
 from datetime import time, datetime
 from models.product import Product
 from models.project import Project
 from utils.api import GithubAPI
 from utils.db import SupabaseInterface
 import requests, json
-import os
+import os, dateutil.parser
 
 
-def addMentorData(data):
-    client = SupabaseInterface("unstructured discord data")
-    client.insert(data)
-    time.sleep(1)
-    return
+
 
 class MetricsTracker(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -25,34 +22,38 @@ class MetricsTracker(commands.Cog):
         ]
         # self.test_task.start()
 
-
+    #Store all messages on Text Channels in the Discord Server to SupaBase
     @commands.command()
     async def add_messages(self,ctx):
-        print(1)
-        guild = await self.bot.fetch_guild(os.getenv("SERVER_ID"))
-        print(2, guild)
+        
+        def addMessageData(data):
+            client = SupabaseInterface("unstructured discord data")
+            client.insert(data)
+            return
+        
+        guild = await self.bot.fetch_guild(os.getenv("SERVER_ID")) #SERVER_ID Should be C4GT Server ID
         channels = await guild.fetch_channels()
-        print(channels)
         for channel in channels:
-            if isinstance(channel, discord.channel.TextChannel):
-                data = []
-                # if channel.name not in data:
-                #     data.append(channel.name)
-                # print(data)
-                async for message in channel.history(limit=100):
+            print(channel.name)
+            if isinstance(channel, TextChannel): #See Channel Types for info on text channels https://discordpy.readthedocs.io/en/stable/api.html?highlight=guild#discord.ChannelType
+                messages = []
+                last_run = dateutil.parser.parse("2023-06-08T17:00:00Z")
+                async for message in channel.history(limit=None, after =last_run ):
                     if message.content=='':
                         continue
-                    msg = {
+                    msg_data = {
                         "channel": channel.id,
                         "channel_name": channel.name,
                         "text": message.content,
                         "author": message.author.id,
                         "author_name": message.author.name,
-                        "author_roles": message.author.roles if isinstance(message.author, discord.Member) else [],
+                        "author_roles": message.author.roles if isinstance(message.author, Member) else [],
                         "sent_at":str(message.created_at)
                     }
-                    data.append(msg)
-                addMentorData(data)
+                    messages.append(msg_data)
+                print(len(messages))
+                addMessageData(messages)
+        print("Complete!")
     
     
     #Command to assign a channel to a product

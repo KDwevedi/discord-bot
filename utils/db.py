@@ -4,7 +4,6 @@ from supabase import create_client, Client
 
 class SupabaseInterface:
     def __init__(self, table, url=None, key=None) -> None:
-        print(url, key)
 
         self.supabase_url = url if url else os.getenv("SUPABASE_URL")
         self.supabase_key = key if key else os.getenv("SUPABASE_KEY")
