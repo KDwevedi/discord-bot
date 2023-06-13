@@ -17,43 +17,8 @@ import os, dateutil.parser
 class MetricsTracker(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.measure_times = [
-            time(hour = 12, )
-        ]
-        # self.test_task.start()
 
-    #Store all messages on Text Channels in the Discord Server to SupaBase
-    @commands.command()
-    async def add_messages(self,ctx):
-        
-        def addMessageData(data):
-            client = SupabaseInterface("unstructured discord data")
-            client.insert(data)
-            return
-        
-        guild = await self.bot.fetch_guild(os.getenv("SERVER_ID")) #SERVER_ID Should be C4GT Server ID
-        channels = await guild.fetch_channels()
-        for channel in channels:
-            print(channel.name)
-            if isinstance(channel, TextChannel): #See Channel Types for info on text channels https://discordpy.readthedocs.io/en/stable/api.html?highlight=guild#discord.ChannelType
-                messages = []
-                last_run = dateutil.parser.parse("2023-06-08T17:00:00Z")
-                async for message in channel.history(limit=None, after =last_run ):
-                    if message.content=='':
-                        continue
-                    msg_data = {
-                        "channel": channel.id,
-                        "channel_name": channel.name,
-                        "text": message.content,
-                        "author": message.author.id,
-                        "author_name": message.author.name,
-                        "author_roles": message.author.roles if isinstance(message.author, Member) else [],
-                        "sent_at":str(message.created_at)
-                    }
-                    messages.append(msg_data)
-                print(len(messages))
-                addMessageData(messages)
-        print("Complete!")
+    
     
     
     #Command to assign a channel to a product
@@ -89,104 +54,104 @@ class MetricsTracker(commands.Cog):
     async def handle_assignment_error(self, ctx, error):
         pass
 
-    async def get_discord_metrics(self):
-        # print(1)
-        products = Product.get_all_products()
+    # async def get_discord_metrics(self):
+    #     # print(1)
+    #     products = Product.get_all_products()
 
-        print(products)
+    #     print(products)
 
-        discord_metrics = {
-            "measured_at": datetime.now(),
-            "metrics": dict()
-        }
+    #     discord_metrics = {
+    #         "measured_at": datetime.now(),
+    #         "metrics": dict()
+    #     }
 
-        # print(2)
+    #     # print(2)
 
-        for product in products:
-            # print(3)
-            discord_metrics["metrics"][product['name']] = {
-                "mentor_messages": 0,
-                "contributor_messages": 0
-            }
-            channel_id = product["channel"]
-            channel = await self.bot.fetch_channel(channel_id)
+    #     for product in products:
+    #         # print(3)
+    #         discord_metrics["metrics"][product['name']] = {
+    #             "mentor_messages": 0,
+    #             "contributor_messages": 0
+    #         }
+    #         channel_id = product["channel"]
+    #         channel = await self.bot.fetch_channel(channel_id)
             
-            async for message in channel.history(limit=None):
-                # print(4)
-                if not isinstance(message.author, Member):
-                    # print(5)
-                    continue
-                if any(role.name.lower() == 'mentor' for role in message.author.roles):
-                    discord_metrics["metrics"][product["name"]]['mentor_messages'] +=1
+    #         async for message in channel.history(limit=None):
+    #             # print(4)
+    #             if not isinstance(message.author, Member):
+    #                 # print(5)
+    #                 continue
+    #             if any(role.name.lower() == 'mentor' for role in message.author.roles):
+    #                 discord_metrics["metrics"][product["name"]]['mentor_messages'] +=1
                 
-                if any(role.name.lower() == 'contributor' for role in message.author.roles):
-                    discord_metrics["metrics"][product['name']]['contributor_messages'] +=1
-        # print(6)
+    #             if any(role.name.lower() == 'contributor' for role in message.author.roles):
+    #                 discord_metrics["metrics"][product['name']]['contributor_messages'] +=1
+    #     # print(6)
                 
-        r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/discord""", json=json.dumps(discord_metrics, indent=4, default=str))
-        # print(r.json())
+    #     r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/discord""", json=json.dumps(discord_metrics, indent=4, default=str))
+    #     # print(r.json())
 
-        #Store metrics
+    #     #Store metrics
 
         
     
-    async def get_github_metrics(self):
+    # async def get_github_metrics(self):
 
-        #Get all projects in the db
-        projects = Project.get_all_projects()
+    #     #Get all projects in the db
+    #     projects = Project.get_all_projects()
 
-        github_metrics = {
-            "updated_at": datetime.now(),
-            "metrics": dict()
-        }
+    #     github_metrics = {
+    #         "updated_at": datetime.now(),
+    #         "metrics": dict()
+    #     }
 
-        for project in projects:
-            url_components = str(project['repository']).split('/')
-            url_components = [component for component in url_components if component != '']
-            # print(url_components)
-            [protocol, host, repo_owner, repo_name] = url_components
-            api = GithubAPI(owner=repo_owner, repo=repo_name)
+    #     for project in projects:
+    #         url_components = str(project['repository']).split('/')
+    #         url_components = [component for component in url_components if component != '']
+    #         # print(url_components)
+    #         [protocol, host, repo_owner, repo_name] = url_components
+    #         api = GithubAPI(owner=repo_owner, repo=repo_name)
 
-            (open_prs, closed_prs) = api.get_pull_request_count()
-            (open_issues, closed_issues) = api.get_issue_count()
+    #         (open_prs, closed_prs) = api.get_pull_request_count()
+    #         (open_issues, closed_issues) = api.get_issue_count()
 
 
-            github_metrics["metrics"][project["product"]] = {
-                "project": project["name"],
-                "repository": project["repository"],
-                "number_of_commits":  api.get_commit_count(),
-                "open_prs": open_prs,
-                "closed_prs": closed_prs,
-                "open_issues": open_issues,
-                "closed_issues": closed_issues
-            }
-        r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/github""", json=json.dumps(github_metrics, indent=4, default=str))
-        # print(r.json())
+    #         github_metrics["metrics"][project["product"]] = {
+    #             "project": project["name"],
+    #             "repository": project["repository"],
+    #             "number_of_commits":  api.get_commit_count(),
+    #             "open_prs": open_prs,
+    #             "closed_prs": closed_prs,
+    #             "open_issues": open_issues,
+    #             "closed_issues": closed_issues
+    #         }
+    #     r = requests.post(f"""{os.getenv("FLASK_HOST")}/metrics/github""", json=json.dumps(github_metrics, indent=4, default=str))
+    #     # print(r.json())
         
-        # await ctx.channel.send(github_metrics)
+    #     # await ctx.channel.send(github_metrics)
 
-        return
+    #     return
     
-    @tasks.loop(seconds=20.0)
-    async def record_metrics(self):
-        # print('recording started')
-        await self.get_discord_metrics()
-        # print('discord done')
-        # await self.get_github_metrics()
-        # print('metrics recorded')
+    # @tasks.loop(seconds=20.0)
+    # async def record_metrics(self):
+    #     # print('recording started')
+    #     await self.get_discord_metrics()
+    #     # print('discord done')
+    #     # await self.get_github_metrics()
+    #     # print('metrics recorded')
 
-    @commands.command(aliases=['metrics'])
-    # @tasks.loop(seconds=10.0)
-    async def update_metrics_periodically(self, ctx, args):
-        if args == 'start':
-            self.record_metrics.start()
-            # await self.get_github_metrics()
+    # @commands.command(aliases=['metrics'])
+    # # @tasks.loop(seconds=10.0)
+    # async def update_metrics_periodically(self, ctx, args):
+    #     if args == 'start':
+    #         self.record_metrics.start()
+    #         # await self.get_github_metrics()
             
-        elif args == 'stop':
-            self.record_metrics.stop()
+    #     elif args == 'stop':
+    #         self.record_metrics.stop()
         
 
-        return
+    #     return
     
 
 
