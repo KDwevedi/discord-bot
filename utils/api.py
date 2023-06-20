@@ -19,6 +19,14 @@ class GithubAPI:
         url =  f'https://api.github.com/repos/{self.owner}/{self.repo}/commits'
         return requests.get(url, headers=self.headers).json()
     
+    def get_repos(self, org):
+        params= {
+            'sort':'updated',
+            'per_page': 100
+        }
+        url = f'https://api.github.com/orgs/{org}/repos'
+        return requests.get(url, headers=self.headers, params=params).json()
+    
     def get_commit_count(self):
         contributors = self.get_contributors()
         print(contributors, type(contributors))
@@ -33,6 +41,11 @@ class GithubAPI:
     
     def get_json(self, dict):
         return json.dumps(dict)
+    
+    def get_issue(self, repo, number):
+        url = f"https://api.github.com/repos/{repo}/issues/{number}"
+        return requests.get(url, headers=self.headers).json()
+
     
     def get_issues(self, status, page):
         params={
@@ -61,7 +74,7 @@ class GithubAPI:
             "page":page
         }
         url = f'https://api.github.com/repos/{self.owner}/{self.repo}/pulls'
-        return requests.get(url, headers=self.headers, params={"state":status}).json()
+        return requests.get(url, headers=self.headers, params=params).json()
     
     def get_issue_count(self):
         open_count = len(self.get_issues('open'))

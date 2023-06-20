@@ -29,6 +29,13 @@ class SupabaseInterface:
     def delete(self):
         pass
     
+
+    def test(self):
+        contributor = self.client.table("contributor_engagement").select("*").execute()
+        print(contributor)
+        comment_count = contributor.data[0]["github_comments"]
+        data = self.client.table("contributor_engagement").update({"github_comments":comment_count+1}).eq("contributor_github",74085496).execute()
+        return data
         
     
     def add_user(self, userdata):
@@ -42,8 +49,12 @@ class SupabaseInterface:
             return True
         else:
             return False
+        
 
-# tester = SupabaseInterface('users').read_all()
+
+
+# tester = SupabaseInterface('users', url="https://kcavhjwafgtoqkqbbqrd.supabase.co",key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjYXZoandhZmd0b3FrcWJicXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ5NTQxMzIsImV4cCI6MjAwMDUzMDEzMn0.8PKGvntMY7kw5-wmvG2FBOCxf-OrA2yV5fnudeA6SVQ" )
+# tester.test()
 # print(tester)
 # tester.add_user({
 #     "discord_id": 476285280811483140,

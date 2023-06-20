@@ -66,7 +66,113 @@ class UserHandler(commands.Cog):
             print(message.content, type(message.content))
             if message.content == '':
                 print(True)
-    
+
+    @commands.command(aliases=["my_points"])
+    async def get_points(self, ctx):
+        if ctx.author.id not in [1042682119035568178,476285280811483140]:
+            message = f"""Hey, {ctx.author.name}! This command isn't available to unregistered users as of now and will become operational with the rollout of the complete point system!"""
+            await ctx.channel.send(message)
+        else:
+            points_message =f"""Hey {ctx.author.name}
+
+**You have a total of 150 points**🌟 
+
+▶️**Points Basis PRs raised - 20 points**🔥 
+
+▶️ **Points Basis PRs accepted - 70 points**🔥 
+
+Number of tickets solved - 5
+Points on tickets with low complexity - 30 points
+Points on tickets with medium complexity - 40 points
+Points of tickets with high complexity - 0 points
+
+▶️ **Points as per PRs reviewed - 30 points**🙌 
+
+Number of tickets reviewed - 2
+Points on tickets with low complexity - 10 points
+Points on tickets with medium complexity - 20 points
+Points of tickets with high complexity - 0 points
+
+
+▶️ **Total points for Discord  Engagement- 10 points**🤙 
+
+
+▶️**Total points for GitHub Engagement- 20 points**😎 
+
+
+Woah, awesome! Get coding and earn more points to get a spot on the leaderboard📈"""
+            await ctx.channel.send(points_message)
+
+    @commands.command(aliases=["point_system_breakdown", "point_system"])
+    async def point_breakdown(self, ctx):
+        if ctx.author.id not in [1042682119035568178,476285280811483140]:
+            message = f"""Hey, {ctx.author.name}! This command isn't available to unregistered users as of now and will become operational with the rollout of the complete point system!"""
+            await ctx.channel.send(message)
+        else:
+            message = f"""Hey **{ctx.author.name}**
+
+Points are allocated on the following basis📊 :
+
+▶️ **Number of PRs raised** 
+🚀  **x points per ticket are given** 
+
+▶️ **Number of PRs accepted** 
+
+🚀  **10 points per ticket are given** 
+🚀 **Get more points for complex tickets**
+
+- 1x for Low Complexity 
+- 2x for Medium Complexity
+- 3x for High Complexity
+
+▶️ **Number of PRs reviewed** 
+
+🚀 **10 points per ticket for those who have been made a maintainer to review PRs** 
+🚀  **Get more points for complex tickets**
+
+- 1x for Low Complexity 
+- 2x for Medium Complexity
+- 3x for High Complexity
+
+▶️ **Engagement on Discord & GitHub** 
+
+🚀  **Discord**
+
+- Engage with community via messages across channels to get x points
+
+🚀 **GitHub**
+
+- Engage with the community via x comments & messages on repositories to get x points."""
+            await ctx.channel.send(message)
+     
+
+
+        return
+
+dummy_data = {
+    "total":190,
+    "tickets": {
+        "low":2,
+        "medium":2,
+        "high":2
+    },
+    "prs":{
+        "low":1,
+        "medium":1,
+        "high":0,
+    },
+    "discord":{
+        "intro":1,
+        "other":30,
+    },
+    "github": {
+        "messages":15
+    }
+
+}
      
 async def setup(bot):
     await bot.add_cog(UserHandler(bot))
+
+
+
